@@ -21,3 +21,14 @@ export const removeSocket = (socket: WebSocket) => {
 export const getSockets = () => {
   return sockets
 }
+
+let syncPaused = false
+export const pauseSync = () => {
+  syncPaused = true
+}
+export const resumeSync = () => {
+  syncPaused = false
+}
+export const isSyncPaused = () => {
+  return syncPaused
+}

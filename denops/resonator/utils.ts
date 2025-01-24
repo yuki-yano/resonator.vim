@@ -7,3 +7,19 @@ export const getResonatorDefaultPort = () => {
   }
   return Math.abs(hash) % 40000 + 20000
 }
+
+export const isPortAvailable = (port: number) => {
+  try {
+    const listener = Deno.listen({
+      port: port,
+    })
+    listener.close()
+    return true
+  } catch (error) {
+    if (error instanceof Deno.errors.AddrInUse) {
+      return false
+    }
+    throw error
+  }
+}
+

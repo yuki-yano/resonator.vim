@@ -1,9 +1,13 @@
 import { assert, debounce, Denops } from "./deps.ts"
-import { addSocket, getSockets, removeSocket, setLastCursorPos } from "./state.ts"
+import { addSocket, getSockets, isSyncPaused, removeSocket, setLastCursorPos } from "./state.ts"
 import { CursorPos, CursorPosProtocol, isMessageProtocol } from "./types.ts"
 import { getCursorPos, isValidCursorPos } from "./vim.ts"
 
 let abortController: AbortController | undefined
+
+export const isWsServerRunning = () => {
+  return abortController !== undefined
+}
 
 export const runWsServer = async (denops: Denops, port: number) => {
   abortController = new AbortController()
@@ -36,6 +40,10 @@ export const handleWs = (denops: Denops, req: Request): Response => {
   }
 
   socket.onmessage = async (_e) => {
+    if (isSyncPaused()) {
+      return
+    }
+
     const message = JSON.parse(_e.data) as unknown
     assert(message, isMessageProtocol)
 
@@ -65,7 +73,7 @@ export const handleWs = (denops: Denops, req: Request): Response => {
 
         setLastCursorPos(newCursorPos)
         await denops.cmd(
-          `noautocmd call cursor(${newCursorPos.line}, ${newCursorPos.col})`,
+          `execute "noautocmd call cursor(${newCursorPos.line}, ${newCursorPos.col})"`,
         )
         break
       }
@@ -96,6 +104,7 @@ export const debouncedSyncCursor = debounce(
       path,
       line,
       col,
+      paused: isSyncPaused(),
     }
     const sockets = getSockets()
     sockets.forEach((s) => s.send(JSON.stringify(json)))

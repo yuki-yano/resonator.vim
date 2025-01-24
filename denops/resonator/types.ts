@@ -6,6 +6,7 @@ export const isCursorPosProtocol = is.ObjectOf({
   path: is.String,
   sender: is.LiteralOneOf(["vim", "vscode"] as const),
   type: is.LiteralOf("CursorPos"),
+  paused: is.Boolean,
 })
 export type CursorPosProtocol = PredicateType<typeof isCursorPosProtocol>
 
@@ -17,6 +18,7 @@ export const isSelectionPosProtocol = is.ObjectOf({
   startCol: is.Number,
   startLine: is.Number,
   type: is.LiteralOf("SelectionPos"),
+  paused: is.Boolean,
 })
 export type SelectionPosProtocol = PredicateType<typeof isSelectionPosProtocol>
 
@@ -27,6 +29,7 @@ export const isTextContentProtocol = is.ObjectOf({
   sender: is.LiteralOneOf(["vim", "vscode"] as const),
   text: is.String,
   type: is.LiteralOf("TextContent"),
+  paused: is.Boolean,
 })
 export type TextContentProtocol = PredicateType<typeof isTextContentProtocol>
 
@@ -35,9 +38,7 @@ export const isMessageProtocol = is.UnionOf([
   isSelectionPosProtocol,
   isTextContentProtocol,
 ])
-export type MessageProtocol =
-  | PredicateType<typeof isMessageProtocol>
-  | TextContentProtocol
+export type MessageProtocol = CursorPosProtocol | SelectionPosProtocol | TextContentProtocol
 
 export type CursorPos = {
   col: number
