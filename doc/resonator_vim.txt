@@ -1,0 +1,53 @@
+*resonator.vim*
+
+Resonator is a plugin for syncing cursor position between Vim and VSCode.
+
+This plugin depends on denops.vim
+- denops.vim: https://github.com/vim-denops/denops.vim
+
+VSCode extension
+- Repository: https://github.com/yuki-yano/vscode-resonator
+- Marketplace: TODO
+
+Author: yuki-yano
+License: MIT
+
+==============================================================================
+COMMANDS                                        *resonator-commands*
+
+                                                *:ResonatorServer*
+:ResonatorServer {port}
+    Start server.
+    {port}: The port number to listen on. If not specified, select project 
+    unique port from cwd.
+
+                                                *:ResonatorStopServer*
+:ResonatorStopServer
+    Stop server.
+
+                                                *:ResonatorPauseSync*
+:ResonatorPauseSync
+    Pause sync.
+
+                                                *:ResonatorResumeSync*
+:ResonatorResumeSync
+    Resume sync.
+
+                                                *:ResonatorToggleSync*
+:ResonatorToggleSync
+    Toggle sync.
+
+==============================================================================
+FUNCTIONS                                       *resonator-functions*
+
+                                                *resonator#status*
+resonator#status()
+    Get status.
+    Return:
+    - is_running: Whether the server is running.
+    - is_sync_paused: Whether the sync is paused.
+
+resonator#is_sync_paused()
+    Whether the sync is paused.
+
+vim:tw=78:sw=2:ts=2:ft=help:norl:nowrap:
