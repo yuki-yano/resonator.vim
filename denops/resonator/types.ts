@@ -1,4 +1,13 @@
-import { is, PredicateType } from "./deps.ts"
+import { is, Predicate } from "./deps.ts"
+
+export type CursorPosProtocol = {
+  col: number
+  line: number
+  path: string
+  sender: "vim" | "vscode"
+  type: "CursorPos"
+  paused: boolean
+}
 
 export const isCursorPosProtocol = is.ObjectOf({
   col: is.Number,
@@ -7,8 +16,18 @@ export const isCursorPosProtocol = is.ObjectOf({
   sender: is.LiteralOneOf(["vim", "vscode"] as const),
   type: is.LiteralOf("CursorPos"),
   paused: is.Boolean,
-})
-export type CursorPosProtocol = PredicateType<typeof isCursorPosProtocol>
+}) satisfies Predicate<CursorPosProtocol>
+
+export type SelectionPosProtocol = {
+  endCol: number
+  endLine: number
+  path: string
+  sender: "vim" | "vscode"
+  startCol: number
+  startLine: number
+  type: "SelectionPos"
+  paused: boolean
+}
 
 export const isSelectionPosProtocol = is.ObjectOf({
   endCol: is.Number,
@@ -19,8 +38,17 @@ export const isSelectionPosProtocol = is.ObjectOf({
   startLine: is.Number,
   type: is.LiteralOf("SelectionPos"),
   paused: is.Boolean,
-})
-export type SelectionPosProtocol = PredicateType<typeof isSelectionPosProtocol>
+}) satisfies Predicate<SelectionPosProtocol>
+
+export type TextContentProtocol = {
+  col: number
+  line: number
+  path: string
+  sender: "vim" | "vscode"
+  text: string
+  type: "TextContent"
+  paused: boolean
+}
 
 export const isTextContentProtocol = is.ObjectOf({
   col: is.Number,
@@ -30,15 +58,16 @@ export const isTextContentProtocol = is.ObjectOf({
   text: is.String,
   type: is.LiteralOf("TextContent"),
   paused: is.Boolean,
-})
-export type TextContentProtocol = PredicateType<typeof isTextContentProtocol>
+}) satisfies Predicate<TextContentProtocol>
+
+export type MessageProtocol = CursorPosProtocol | SelectionPosProtocol | TextContentProtocol
 
 export const isMessageProtocol = is.UnionOf([
   isCursorPosProtocol,
   isSelectionPosProtocol,
   isTextContentProtocol,
-])
-export type MessageProtocol = CursorPosProtocol | SelectionPosProtocol | TextContentProtocol
+]) satisfies Predicate<MessageProtocol>
+
 
 export type CursorPos = {
   col: number
