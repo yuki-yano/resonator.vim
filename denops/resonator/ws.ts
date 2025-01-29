@@ -11,7 +11,11 @@ export const isWsServerRunning = () => {
 
 export const runWsServer = async (denops: Denops, port: number) => {
   abortController = new AbortController()
-  const server = Deno.serve({ port, signal: abortController.signal }, (req) => handleWs(denops, req))
+  const server = Deno.serve({
+    port,
+    onListen: () => {},
+    signal: abortController.signal,
+  }, (req) => handleWs(denops, req))
   await server.finished
   abortController = undefined
   console.log("Resonator: Server stopped")
@@ -39,17 +43,17 @@ export const handleWs = (denops: Denops, req: Request): Response => {
     removeSocket(socket)
   }
 
-  socket.onmessage = async (_e) => {
+  socket.onmessage = async (e) => {
     if (isSyncPaused()) {
       return
     }
 
-    const message = JSON.parse(_e.data) as unknown
+    const message = JSON.parse(e.data) as unknown
     assert(message, isMessageProtocol)
 
     switch (message.type) {
       case "CursorPos": {
-        const newCursorPos = {
+        const newCursorPos: CursorPos = {
           path: message.path,
           line: message.line,
           col: message.col,
