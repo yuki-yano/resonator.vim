@@ -60,14 +60,30 @@ export const isTextContentProtocol = is.ObjectOf({
   paused: is.Boolean,
 }) satisfies Predicate<TextContentProtocol>
 
-export type MessageProtocol = CursorPosProtocol | SelectionPosProtocol | TextContentProtocol
+export type ExecuteCommandProtocol = {
+  args: Array<string>
+  command: string
+  paused: boolean
+  sender: "vim" | "vscode"
+  type: "ExecuteCommand"
+}
+
+export const isExecuteCommandProtocol = is.ObjectOf({
+  args: is.ArrayOf(is.String),
+  command: is.String,
+  paused: is.Boolean,
+  sender: is.LiteralOneOf(["vim", "vscode"] as const),
+  type: is.LiteralOf("ExecuteCommand"),
+}) satisfies Predicate<ExecuteCommandProtocol>
+
+export type MessageProtocol = CursorPosProtocol | SelectionPosProtocol | TextContentProtocol | ExecuteCommandProtocol
 
 export const isMessageProtocol = is.UnionOf([
   isCursorPosProtocol,
   isSelectionPosProtocol,
   isTextContentProtocol,
+  isExecuteCommandProtocol,
 ]) satisfies Predicate<MessageProtocol>
-
 
 export type CursorPos = {
   col: number

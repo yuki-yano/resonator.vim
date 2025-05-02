@@ -1,7 +1,7 @@
 import { assert, debounce, Denops } from "./deps.ts"
 import { addSocket, getSockets, isSyncPaused, removeSocket, setLastCursorPos } from "./state.ts"
 import { CursorPos, CursorPosProtocol, isMessageProtocol } from "./types.ts"
-import { getCursorPos, isValidCursorPos } from "./vim.ts"
+import { executeCommand, getCursorPos, isValidCursorPos } from "./vim.ts"
 
 let abortController: AbortController | undefined
 
@@ -90,13 +90,18 @@ export const handleWs = (denops: Denops, req: Request): Response => {
         console.log("TextContent", message)
         break
       }
+      case "ExecuteCommand": {
+        const { command, args } = message
+        executeCommand({ denops, command, args })
+        break
+      }
       default: {
-        throw new Error("Invalid message type")
+        throw new Error(`Unknown type: ${(message as { type: "__invalid__" }).type}`)
       }
     }
   }
 
-  socket.onerror = (e) => console.error("ShareEdit error:", e)
+  socket.onerror = (e) => console.error("Resonator error:", e)
   return response
 }
 

@@ -15,3 +15,11 @@ export const isValidCursorPos = async ({ denops, cursorPos }: { denops: Denops; 
 
   return cursorPos.line <= lastLine && cursorPos.col <= lastColOfNewLine
 }
+
+export const executeCommand = async (
+  { denops, command, args }: { denops: Denops; command: string; args: Array<string> },
+) => {
+  const argsString = args.join(" ")
+  const commandString = `${command} ${argsString}`
+  await denops.cmd(commandString)
+}
