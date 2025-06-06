@@ -3,8 +3,9 @@ import { isLastCursorPos, isSyncPaused, pauseSync, resumeSync, setLastCursorPos 
 import { getResonatorDefaultPort, isPortAvailable } from "./utils.ts"
 import { getCursorPos } from "./vim.ts"
 import { debouncedSyncCursor, isWsServerRunning, runWsServer, stopWsServer } from "./ws.ts"
+import { notify } from "./notify.ts"
 
-export const main = async (denops: Denops): Promise<void> => {
+export const main = (denops: Denops): void => {
   denops.dispatcher = {
     startServer: async (port: unknown) => {
       let portNumber = Number(port)
@@ -14,26 +15,26 @@ export const main = async (denops: Denops): Promise<void> => {
       }
 
       if (isWsServerRunning() || !isPortAvailable(portNumber)) {
-        console.log("Resonator: Server already running")
+        await notify(denops, "Resonator: Server already running", "warn")
         return
       }
 
-      console.log(`Resonator server started on port ${portNumber}`)
+      await notify(denops, `Resonator server started on port ${portNumber}`, "info")
       runWsServer(denops, portNumber)
     },
-    stopServer: async () => {
+    stopServer: () => {
       stopWsServer()
     },
-    status: async () => {
+    status: () => {
       return {
         is_running: isWsServerRunning(),
         is_sync_paused: isSyncPaused(),
       }
     },
-    pauseSync: async () => {
+    pauseSync: () => {
       pauseSync()
     },
-    resumeSync: async () => {
+    resumeSync: () => {
       resumeSync()
     },
     syncCursorPos: async () => {

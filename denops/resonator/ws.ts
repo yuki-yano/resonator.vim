@@ -2,6 +2,7 @@ import { assert, debounce, Denops } from "./deps.ts"
 import { addSocket, getSockets, isSyncPaused, removeSocket, setLastCursorPos } from "./state.ts"
 import { CursorPos, CursorPosProtocol, isMessageProtocol } from "./types.ts"
 import { executeCommand, getCursorPos, isValidCursorPos } from "./vim.ts"
+import { notify } from "./notify.ts"
 
 let abortController: AbortController | undefined
 
@@ -18,7 +19,7 @@ export const runWsServer = async (denops: Denops, port: number) => {
   }, (req) => handleWs(denops, req))
   await server.finished
   abortController = undefined
-  console.log("Resonator: Server stopped")
+  await notify(denops, "Resonator: Server stopped", "info")
 }
 
 export const stopWsServer = () => {
@@ -34,12 +35,12 @@ export const handleWs = (denops: Denops, req: Request): Response => {
   const { socket, response } = Deno.upgradeWebSocket(req)
   addSocket(socket)
 
-  socket.onopen = () => {
-    console.log("Resonator: Client connected")
+  socket.onopen = async () => {
+    await notify(denops, "Resonator: Client connected", "info")
   }
 
-  socket.onclose = () => {
-    console.log("Resonator: Client disconnected")
+  socket.onclose = async () => {
+    await notify(denops, "Resonator: Client disconnected", "info")
     removeSocket(socket)
   }
 
@@ -83,11 +84,11 @@ export const handleWs = (denops: Denops, req: Request): Response => {
       }
 
       case "SelectionPos": {
-        console.log("SelectionPos", message)
+        // TODO: Implement selection sync
         break
       }
       case "TextContent": {
-        console.log("TextContent", message)
+        // TODO: Implement text content sync
         break
       }
       case "ExecuteCommand": {
@@ -101,7 +102,7 @@ export const handleWs = (denops: Denops, req: Request): Response => {
     }
   }
 
-  socket.onerror = (e) => console.error("Resonator error:", e)
+  socket.onerror = async (e) => await notify(denops, `Resonator error: ${e}`, "error")
   return response
 }
 

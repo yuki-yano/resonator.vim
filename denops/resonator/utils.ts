@@ -22,4 +22,3 @@ export const isPortAvailable = (port: number) => {
     throw error
   }
 }
-
